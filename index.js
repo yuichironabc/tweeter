@@ -1,4 +1,6 @@
 'use strict'
+const express = require('express');
+const app = express();
 const line = require('@line/bot-sdk');
 const crypto = require('crypto');
 const client = new line.Client({
@@ -37,12 +39,12 @@ function sendTweet(message) {
     });
 }
 
-exports.handler = function (event, context) {
-    console.log("Lambda関数がアクセスされました。");
+app.post('/callback', function (request, response) {
+    console.log("bot関数がアクセスされました。");
 
-    let signature = crypto.createHmac('sha256', process.env.CHANNELSECRET).update(event.body).digest('base64');
-    let checkHeader = (event.headers || {})['X-Line-Signature'];
-    let body = JSON.parse(event.body);
+    let signature = crypto.createHmac('sha256', process.env.CHANNELSECRET).update(request.body).digest('base64');
+    let checkHeader = (request.headers || {})['X-Line-Signature'];
+    let body = JSON.parse(request.body);
     console.log("準備が完了しました。" + body.events[0].replyToken);
 
     if (signature === checkHeader) {
@@ -54,8 +56,7 @@ exports.handler = function (event, context) {
                 },
                 body: '{"result": "connect check"}'
             };
-            context.succeed(lambdaResponse);
-            console.log("返信に成功しました。");
+            response.succeed(lambdaResponse);
 
         } else {
 
@@ -82,4 +83,4 @@ exports.handler = function (event, context) {
     } else {
         console.log('署名認証エラー');
     }
-}
+});
