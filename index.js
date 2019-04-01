@@ -3,9 +3,9 @@ const express = require('express');
 const app = express();
 const line = require('@line/bot-sdk');
 const crypto = require('crypto');
-const client = new line.Client({
-    channelAccessToken: process.env.ACCESSTOKEN
-});
+// const client = new line.Client({
+//     channelAccessToken: process.env.ACCESSTOKEN
+// });
 
 function sendTweet(message) {
 
@@ -39,6 +39,7 @@ function sendTweet(message) {
     });
 }
 
+app.set('port', 5000);
 app.post('/callback', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
@@ -83,4 +84,8 @@ app.post('/callback', function (request, response) {
     } else {
         console.log('署名認証エラー');
     }
+});
+
+app.listen(app.PORT, function () {
+    console.log('node server is running!')
 });
