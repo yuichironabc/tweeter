@@ -41,7 +41,7 @@ function sendTweet(message) {
     });
 }
 
-app.set('port', 5001);
+app.set('port', process.env.PORT || 3000);
 app.post('/', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
@@ -94,7 +94,7 @@ let options = {
     cert: fs.readFileSync('./server_crt.pem')
 };
 
-let server = https.createServer(options, app).listen(5001, function () {
+let server = https.createServer(options, app).listen(process.env.PORT || 3000, function () {
     console.log("node ssl server is running!");
 });
 // app.listen(5001, function () {
