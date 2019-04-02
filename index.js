@@ -42,7 +42,7 @@ function sendTweet(message) {
 }
 
 app.set('port', process.env.PORT || 3000);
-app.post('/', function (request, response) {
+app.get('/', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
     // まずはローカル環境でちゃんと動くようにする    
