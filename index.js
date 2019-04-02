@@ -45,7 +45,7 @@ app.set('port', process.env.PORT || 3000);
 app.post('/', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
-    console.log(request.body.events[0].message.text);
+    console.log(request.body);
     // let body = JSON.parse(request.body);
 
     // sendTweet(body.events[0].message.text);
