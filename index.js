@@ -45,7 +45,9 @@ app.set('port', process.env.PORT || 3000);
 app.post('/', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
-    sendTweet("またまたAPIテスト");
+    let body = JSON.parse(request.body);
+
+    sendTweet(body.events[0].message.text);
     console.log("Tweetを投稿しました。");
 
     // まずはローカル環境でちゃんと動くようにする    
