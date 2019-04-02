@@ -89,14 +89,14 @@ app.get('/', function (request, response) {
     }
 });
 
-let options = {
-    key: fs.readFileSync('./server_key.pem'),
-    cert: fs.readFileSync('./server_crt.pem')
-};
+// let options = {
+//     key: fs.readFileSync('./server_key.pem'),
+//     cert: fs.readFileSync('./server_crt.pem')
+// };
 
-let server = https.createServer(options, app).listen(process.env.PORT || 3000, function () {
-    console.log("node ssl server is running!");
-});
-// app.listen(5001, function () {
-//     console.log('node server is running!')
+// let server = https.createServer(options, app).listen(process.env.PORT || 3000, function () {
+//     console.log("node ssl server is running!");
 // });
+app.listen(process.env.PORT || 3000, function () {
+    console.log('node server is running!')
+});
