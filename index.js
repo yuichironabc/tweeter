@@ -1,5 +1,7 @@
 'use strict'
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 const app = express();
 const line = require('@line/bot-sdk');
 const crypto = require('crypto');
@@ -87,6 +89,14 @@ app.post('/', function (request, response) {
     }
 });
 
-app.listen(5001, function () {
-    console.log('node server is running!')
+let options = {
+    key: fs.readFileSync('./server_key.pem'),
+    cert: fs.readFileSync('./server_crt.pem')
+};
+
+let server = https.createServer(options, app).listen(5001, function () {
+    console.log("node ssl server is running!");
 });
+// app.listen(5001, function () {
+//     console.log('node server is running!')
+// });
