@@ -1,32 +1,35 @@
-/**
- * Twitterへの投稿を行う。
- * @param {投稿するメッセージ} message 
- */
-function sendTweet(message) {
+exports = {
 
-    console.log("投稿処理を開始しました。");
+    /**
+     * Twitterへの投稿を行う。
+     * @param {投稿するメッセージ} message 
+     */
+    sendTweet: function (message) {
 
-    // Twitterクライアントオブジェクトの作成
-    let twitter = require('twitter');
-    let twitter_client = new twitter({
-        consumer_key: process.env.TWITTER_CONSUMERKEY,
-        consumer_secret: process.env.TWITTER_CONSUMERSECRET,
-        access_token_key: process.env.TWITTER_ACCESSTOKENKEY,
-        access_token_secret: process.env.TWITTER_ACCESSTOKENSECRET,
-    });
+        console.log("投稿処理を開始しました。");
 
-    // TwitterAPIに対してPOSTリクエストを投げる
-    twitter_client.post('statuses/update', {
-        status: message
-    }, function (error, tweet, response) {
+        // Twitterクライアントオブジェクトの作成
+        let twitter = require('twitter');
+        let twitter_client = new twitter({
+            consumer_key: process.env.TWITTER_CONSUMERKEY,
+            consumer_secret: process.env.TWITTER_CONSUMERSECRET,
+            access_token_key: process.env.TWITTER_ACCESSTOKENKEY,
+            access_token_secret: process.env.TWITTER_ACCESSTOKENSECRET,
+        });
 
-        console.log("Tweet投稿後のポストバック");
+        // TwitterAPIに対してPOSTリクエストを投げる
+        twitter_client.post('statuses/update', {
+            status: message
+        }, function (error, tweet, response) {
 
-        if (error) {
-            console.log(error);
-            throw error;
-        }
-        console.log(tweet);
-        console.log(response);
-    });
-}
+            console.log("Tweet投稿後のポストバック");
+
+            if (error) {
+                console.log(error);
+                throw error;
+            }
+            console.log(tweet);
+            console.log(response);
+        });
+    }
+};
