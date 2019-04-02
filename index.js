@@ -50,8 +50,7 @@ app.post('/', line.middleware(line_config), function (request, response) {
     response.status(200).end();
     console.log("bot関数がアクセスされました。");
 
-    let body = JSON.parse(request.body);
-    console.log(body.events[0].message.text);
+    console.log(request.body.events[0].message.text);
 
     // sendTweet(body.events[0].message.text);
     console.log("Tweetを投稿しました。");
