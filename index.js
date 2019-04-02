@@ -1,112 +1,86 @@
 'use strict'
-const express = require('express');
-const https = require('https');
-const fs = require('fs');
-const app = express();
 const line = require('@line/bot-sdk');
 const crypto = require('crypto');
-// const client = new line.Client({
-//     channelAccessToken: process.env.ACCESSTOKEN
-// });
 
-function sendTweet(message) {
-
-    console.log("投稿処理を開始しました。");
-
-    let twitter = require('twitter');
-    let twitter_client = new twitter({
-        consumer_key: process.env.TWITTER_CONSUMERKEY,
-        consumer_secret: process.env.TWITTER_CONSUMERSECRET,
-        access_token_key: process.env.TWITTER_ACCESSTOKENKEY,
-        access_token_secret: process.env.TWITTER_ACCESSTOKENSECRET,
-    });
-
-    console.log(process.env.TWITTER_CONSUMERKEY);
-    console.log(process.env.TWITTER_CONSUMERSECRET);
-    console.log(process.env.TWITTER_ACCESSTOKENKEY);
-    console.log(process.env.TWITTER_ACCESSTOKENSECRET);
-
-    twitter_client.post('statuses/update', {
-        status: message
-    }, function (error, tweet, response) {
-
-        console.log("Tweet投稿後のポストバック");
-
-        if (error) {
-            console.log(error);
-            throw error;
-        }
-        console.log(tweet);
-        console.log(response);
-    });
-}
-
+// LINEの情報にアクセスするための設定
 const line_config = {
     channelAccessToken: process.env.LINE_ACCESSTOKEN,
     channelSecret: process.env.LINE_SECRET
 };
-app.set('port', process.env.PORT || 3000);
+
+// POSTエンドポイント
+const express = require('express');
+const app = express();
 app.post('/', line.middleware(line_config), function (request, response) {
-    response.status(200).end();
+
     console.log("bot関数がアクセスされました。");
+    let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).update(request.body).digest('base64');
+    let checkHeader = (request.headers || {})['X-Line-Signature'];
+    if (signature === checkHeader) {
 
-    // console.log(request.body.events[0].message.text);
+        let event = request.body.events[0];
+        if (event.replyToken === '00000000000000000000000000000000') {
 
-    sendTweet(request.body.events[0].message.text);
-    console.log("Tweetを投稿しました。");
+            response.succeed({
+                statusCode: 200,
+                headers: {
+                    "X-Line-Status": "OK"
+                },
+                body: '{"result": "connect check"}'
+            });
+            response.status(200).end();
+        } else {
 
-    // まずはローカル環境でちゃんと動くようにする    
-    // let signature = crypto.createHmac('sha256', process.env.CHANNELSECRET).update(request.body).digest('base64');
-    // let checkHeader = (request.headers || {})['X-Line-Signature'];
-    // let body = JSON.parse(request.body);
-    // console.log("準備が完了しました。" + body.events[0].replyToken);
+            // LINEクライアントオブジェクト
+            const line_client = new line.Client({
+                channelAccessToken: process.env.LINE_ACCESSTOKEN
+            });
 
-    // if (signature === checkHeader) {
-    //     if (body.events[0].replyToken === '00000000000000000000000000000000') {
-    //         let lambdaResponse = {
-    //             statusCode: 200,
-    //             headers: {
-    //                 "X-Line-Status": "OK"
-    //             },
-    //             body: '{"result": "connect check"}'
-    //         };
-    //         response.succeed(lambdaResponse);
+            let message = event.message.text;
+            // エラーチェック
+            if (message.length > 140) {
 
-    //     } else {
+                line_client.replyMessage(event.replyToken, {
+                    'type': 'text',
+                    'text': '140文字を超えています。'
+                }).then((context) => {
+                    response.status(400).end();
 
-    //         sendTweet(body.events[0].message.text);
-    //         console.log("Tweetを投稿しました。メッセージ➞" + body.events[0].message.text);
+                }).catch((err) => console.log(err));
 
-    //         // let text = body.events[0].message.text;
-    //         // const message = {
-    //         //     'type': 'text',
-    //         //     'text': text
-    //         // };
-    //         // client.replyMessage(body.events[0].replyToken, message)
-    //         //     .then((response) => {
-    //         //         let lambdaResponse = {
-    //         //             statusCode: 200,
-    //         //             headers: {
-    //         //                 "X-Line-Status": "OK"
-    //         //             },
-    //         //             body: '{"result": "completed"}'
-    //         //         };
-    //         //         context.succeed(lambdaResponse);
-    //         //     }).catch((err) => console.log(err));
-    //     }
-    // } else {
-    //     console.log('署名認証エラー');
-    // }
+                console.log("140文字を超えています。");
+                return;
+            }
+
+            // Twitterへの投稿
+            const module = require("./module.js");
+            module.sendTweet(message);
+            console.log("Tweetを投稿しました。");
+
+            // LINEへの返答
+            line_client.replyMessage(event.replyToken, {
+                'type': 'text',
+                'text': '下記のメッセージを投稿しました。\n\n' + message
+            }).then((context) => {
+                // let lambdaResponse = {
+                //     statusCode: 200,
+                //     headers: {
+                //         "X-Line-Status": "OK"
+                //     },
+                //     body: '{"result": "completed"}'
+                // };
+                // context.succeed(lambdaResponse);
+
+                console.log("TweetをLINEに投稿しました。")
+                response.status(200).end();
+
+            }).catch((err) => console.log(err));
+        }
+    } else {
+        console.log('署名認証エラー');
+    }
 });
 
-// let options = {
-//     key: fs.readFileSync('./server_key.pem'),
-//     cert: fs.readFileSync('./server_crt.pem')
-// };
-
-// let server = https.createServer(options, app).listen(process.env.PORT || 3000, function () {
-//     console.log("node ssl server is running!");
-// });
 app.listen(process.env.PORT || 3000, function () {
-    console.log('node server is running!')
+    console.log('node server is running!');
 });
