@@ -1,9 +1,9 @@
-exports = {
+/**
+ * Twitterへの投稿を行う。
+ * @param {投稿するメッセージ} message 
+ */
+module.exports = {
 
-    /**
-     * Twitterへの投稿を行う。
-     * @param {投稿するメッセージ} message 
-     */
     sendTweet: function (message) {
 
         console.log("投稿処理を開始しました。");
