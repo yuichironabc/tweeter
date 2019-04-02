@@ -16,7 +16,9 @@ app.post('/', line.middleware(line_config), function (request, response) {
     console.log("bot関数がアクセスされました。");
     // let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).update(JSON.stringify(request.body)).digest('base64');
     let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).digest('base64');
+    console.log('signature➞' + signature);
     let checkHeader = (request.headers || {})['X-Line-Signature'];
+    console.log('checkHeader➞' + checkHeader);
     if (signature === checkHeader) {
 
         let event = request.body.events[0];
