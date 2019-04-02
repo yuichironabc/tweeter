@@ -19,6 +19,7 @@ app.post('/', line.middleware(line_config), function (request, response) {
     console.log('signature➞' + signature);
     let checkHeader = (request.headers || {})['X-Line-Signature'];
     console.log('checkHeader➞' + checkHeader);
+    console.log('headers➞' + request.headers);
     if (signature === checkHeader) {
 
         let event = request.body.events[0];
