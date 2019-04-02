@@ -17,7 +17,7 @@ app.post('/', line.middleware(line_config), function (request, response) {
     // let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).update(JSON.stringify(request.body)).digest('base64');
     let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).digest('base64');
     console.log('signature➞' + signature);
-    let checkHeader = (request.headers || {})['X-Line-Signature'];
+    let checkHeader = (request.headers || {})['x-line-signature'];
     console.log('checkHeader➞' + checkHeader);
     console.log('headers➞' + request.headers);
     if (signature === checkHeader) {
