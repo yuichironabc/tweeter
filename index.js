@@ -14,11 +14,10 @@ const app = express();
 app.post('/', line.middleware(line_config), function (request, response) {
 
     console.log("bot関数がアクセスされました。");
-    let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).update(JSON.stringify(request.body)).digest('base64');
-    console.log('signature➞' + signature);
+    let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).update(Buffer.from(JSON.stringify(request.body))).digest('base64');
+    console.log(signature);
     let checkHeader = (request.headers || {})['x-line-signature'];
-    console.log('checkHeader➞' + checkHeader);
-    console.log('headers➞' + request.headers);
+    console.log(checkHeader);
     if (signature === checkHeader) {
 
         let event = request.body.events[0];
