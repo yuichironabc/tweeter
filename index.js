@@ -41,8 +41,12 @@ function sendTweet(message) {
     });
 }
 
+const line_config = {
+    channelAccessToken: process.env.LINE_ACCESSTOKEN,
+    channelSecret: process.env.LINE_SECRET
+};
 app.set('port', process.env.PORT || 3000);
-app.post('/', function (request, response) {
+app.post('/', line.middleware(line_config), function (request, response) {
     response.status(200).end();
     console.log("bot関数がアクセスされました。");
 
