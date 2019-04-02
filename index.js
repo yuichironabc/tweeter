@@ -43,9 +43,10 @@ function sendTweet(message) {
 
 app.set('port', process.env.PORT || 3000);
 app.post('/', function (request, response) {
+    response.status(200).end();
     console.log("bot関数がアクセスされました。");
 
-    console.log(request);
+    console.log(request.body);
     // let body = JSON.parse(request.body);
 
     // sendTweet(body.events[0].message.text);
