@@ -39,10 +39,11 @@ function sendTweet(message) {
     });
 }
 
-app.set('port', 5000);
-app.post('/callback', function (request, response) {
+app.set('port', 5001);
+app.post('/', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
+    // まずはローカル環境でちゃんと動くようにする    
     let signature = crypto.createHmac('sha256', process.env.CHANNELSECRET).update(request.body).digest('base64');
     let checkHeader = (request.headers || {})['X-Line-Signature'];
     let body = JSON.parse(request.body);
@@ -86,6 +87,6 @@ app.post('/callback', function (request, response) {
     }
 });
 
-app.listen(app.PORT, function () {
+app.listen(5001, function () {
     console.log('node server is running!')
 });
