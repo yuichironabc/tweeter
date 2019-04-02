@@ -45,48 +45,51 @@ app.set('port', process.env.PORT || 3000);
 app.post('/', function (request, response) {
     console.log("bot関数がアクセスされました。");
 
+    sendTweet("またまたAPIテスト");
+    console.log("Tweetを投稿しました。");
+
     // まずはローカル環境でちゃんと動くようにする    
-    let signature = crypto.createHmac('sha256', process.env.CHANNELSECRET).update(request.body).digest('base64');
-    let checkHeader = (request.headers || {})['X-Line-Signature'];
-    let body = JSON.parse(request.body);
-    console.log("準備が完了しました。" + body.events[0].replyToken);
+    // let signature = crypto.createHmac('sha256', process.env.CHANNELSECRET).update(request.body).digest('base64');
+    // let checkHeader = (request.headers || {})['X-Line-Signature'];
+    // let body = JSON.parse(request.body);
+    // console.log("準備が完了しました。" + body.events[0].replyToken);
 
-    if (signature === checkHeader) {
-        if (body.events[0].replyToken === '00000000000000000000000000000000') {
-            let lambdaResponse = {
-                statusCode: 200,
-                headers: {
-                    "X-Line-Status": "OK"
-                },
-                body: '{"result": "connect check"}'
-            };
-            response.succeed(lambdaResponse);
+    // if (signature === checkHeader) {
+    //     if (body.events[0].replyToken === '00000000000000000000000000000000') {
+    //         let lambdaResponse = {
+    //             statusCode: 200,
+    //             headers: {
+    //                 "X-Line-Status": "OK"
+    //             },
+    //             body: '{"result": "connect check"}'
+    //         };
+    //         response.succeed(lambdaResponse);
 
-        } else {
+    //     } else {
 
-            sendTweet(body.events[0].message.text);
-            console.log("Tweetを投稿しました。メッセージ➞" + body.events[0].message.text);
+    //         sendTweet(body.events[0].message.text);
+    //         console.log("Tweetを投稿しました。メッセージ➞" + body.events[0].message.text);
 
-            // let text = body.events[0].message.text;
-            // const message = {
-            //     'type': 'text',
-            //     'text': text
-            // };
-            // client.replyMessage(body.events[0].replyToken, message)
-            //     .then((response) => {
-            //         let lambdaResponse = {
-            //             statusCode: 200,
-            //             headers: {
-            //                 "X-Line-Status": "OK"
-            //             },
-            //             body: '{"result": "completed"}'
-            //         };
-            //         context.succeed(lambdaResponse);
-            //     }).catch((err) => console.log(err));
-        }
-    } else {
-        console.log('署名認証エラー');
-    }
+    //         // let text = body.events[0].message.text;
+    //         // const message = {
+    //         //     'type': 'text',
+    //         //     'text': text
+    //         // };
+    //         // client.replyMessage(body.events[0].replyToken, message)
+    //         //     .then((response) => {
+    //         //         let lambdaResponse = {
+    //         //             statusCode: 200,
+    //         //             headers: {
+    //         //                 "X-Line-Status": "OK"
+    //         //             },
+    //         //             body: '{"result": "completed"}'
+    //         //         };
+    //         //         context.succeed(lambdaResponse);
+    //         //     }).catch((err) => console.log(err));
+    //     }
+    // } else {
+    //     console.log('署名認証エラー');
+    // }
 });
 
 // let options = {
