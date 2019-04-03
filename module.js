@@ -30,6 +30,7 @@ module.exports = {
             }
 
             // LINEクライアントオブジェクト
+            const line = require('@line/bot-sdk');
             const line_client = new line.Client({
                 channelAccessToken: process.env.LINE_ACCESSTOKEN
             });
