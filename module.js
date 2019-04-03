@@ -53,8 +53,8 @@ module.exports = {
 
             }).catch((err) => console.log(err));
 
-            console.log(tweet);
-            console.log(response);
+            // console.log(tweet);
+            // console.log(response);
         });
     }
 };
