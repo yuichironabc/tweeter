@@ -18,20 +18,8 @@ app.post('/', line.middleware(lib.line_config), (request, main_response) => {
         console.log(checkHeader);
         if (signature === checkHeader) {
 
-            let event = request.body.events[0];
-            // if (event.replyToken === '00000000000000000000000000000000') {
-
-            //     main_response.succeed({
-            //         statusCode: 200,
-            //         headers: {
-            //             "X-Line-Status": "OK"
-            //         },
-            //         body: '{"result": "connect check"}'
-            //     });
-            //     main_response.status(200).end();
-            // } else {
-
             // エラーチェック
+            let event = request.body.events[0];
             let message = event.message.text;
             if (message.length > 140) {
                 lib.replyToLINE(event, "140文字を超えています。", "140文字を超えています。");
@@ -42,18 +30,17 @@ app.post('/', line.middleware(lib.line_config), (request, main_response) => {
             // Twitterへの投稿            
             lib.sendTweet(event, message);
             main_response.status(200).end();
-            // }
         } else {
             console.log("署名認証エラー");
             throw new Error("署名認証エラー");
         }
-
     } catch (e) {
         console.log(e);
         main_response.status(500).end();
     }
 });
 
+// アクセス待機処理
 app.listen(process.env.PORT || 3000, () => {
     console.log('node server is running!');
 });
