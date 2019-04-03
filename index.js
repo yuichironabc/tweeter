@@ -1,17 +1,17 @@
 'use strict'
-const module = require("./module.js");
+const lib = require("./module.js");
 const line = require('@line/bot-sdk');
 
 // POSTエンドポイント
 const express = require('express');
 const app = express();
-app.post('/', line.middleware(module.line_config), (request, main_response) => {
+app.post('/', line.middleware(lib.line_config), (request, main_response) => {
 
     try {
         console.log("bot関数がアクセスされました。");
 
         // 認証用の設定
-        const signature = module.generateSignature(request.body);
+        const signature = lib.generateSignature(request.body);
         const checkHeader = (request.headers || {})['x-line-signature'];
 
         console.log(signature);
@@ -34,13 +34,13 @@ app.post('/', line.middleware(module.line_config), (request, main_response) => {
             // エラーチェック
             let message = event.message.text;
             if (message.length > 140) {
-                module.replyToLINE(event, "140文字を超えています。", "140文字を超えています。");
+                lib.replyToLINE(event, "140文字を超えています。", "140文字を超えています。");
                 main_response.status(400).end();
                 throw new Error("140文字を超えています。");
             }
 
             // Twitterへの投稿            
-            module.sendTweet(event, message);
+            lib.sendTweet(event, message);
             main_response.status(200).end();
             // }
         } else {
