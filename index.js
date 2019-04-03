@@ -34,12 +34,14 @@ app.post('/', line.middleware(module.line_config), (request, main_response) => {
             // エラーチェック
             let message = event.message.text;
             if (message.length > 140) {
-                module.replyToLINE(event, "140文字を超えています。", 400, "140文字を超えています。", main_response);
+                module.replyToLINE(event, "140文字を超えています。", "140文字を超えています。");
+                main_response.status(400).end();
                 throw new Error("140文字を超えています。");
             }
 
             // Twitterへの投稿            
-            module.sendTweet(event, message, main_response);
+            module.sendTweet(event, message);
+            main_response.status(200).end();
             // }
         } else {
             console.log("署名認証エラー");
@@ -48,6 +50,7 @@ app.post('/', line.middleware(module.line_config), (request, main_response) => {
 
     } catch (e) {
         console.log(e);
+        main_response.status(500).end();
     }
 });
 

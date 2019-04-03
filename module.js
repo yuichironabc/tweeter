@@ -3,7 +3,7 @@ module.exports = {
      * Twitterに投稿する。
      * @param {投稿するメッセージ} message 
      */
-    sendTweet: function (event, message, main_response) {
+    sendTweet: (event, message) => {
 
         console.log("投稿処理を開始しました。");
 
@@ -26,7 +26,7 @@ module.exports = {
             console.log("Tweetを投稿しました。");
 
             // LINEへの返答
-            module.exports.replyToLINE(event, "下記のメッセージを投稿しました。\n\n" + message, 200, "TweetをLINEに投稿しました。", main_response);
+            module.exports.replyToLINE(event, "下記のメッセージを投稿しました。\n\n" + message, "TweetをLINEに投稿しました。");
         });
     },
 
@@ -35,7 +35,7 @@ module.exports = {
      * @param {投稿メッセージ} massage 
      * @param {投稿成功時のログメッセージ} log_success 
      */
-    replyToLINE: function (event, message, response_status, log_message, main_response) {
+    replyToLINE: (event, message, log_message) => {
 
         // LINEクライアントオブジェクト
         const line = require('@line/bot-sdk');
@@ -47,7 +47,6 @@ module.exports = {
             'text': message
         }).then((context) => {
             console.log(log_message);
-            main_response.status(response_status).end();
         }).catch((err) => {
             throw err;
         });
