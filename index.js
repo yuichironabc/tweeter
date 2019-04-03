@@ -56,27 +56,8 @@ app.post('/', line.middleware(line_config), function (request, response) {
 
             // Twitterへの投稿
             const module = require("./module.js");
-            module.sendTweet(message);
+            module.sendTweet(event, message);
             console.log("Tweetを投稿しました。");
-
-            // LINEへの返答
-            line_client.replyMessage(event.replyToken, {
-                'type': 'text',
-                'text': '下記のメッセージを投稿しました。\n\n' + message
-            }).then((context) => {
-                // let lambdaResponse = {
-                //     statusCode: 200,
-                //     headers: {
-                //         "X-Line-Status": "OK"
-                //     },
-                //     body: '{"result": "completed"}'
-                // };
-                // context.succeed(lambdaResponse);
-
-                console.log("TweetをLINEに投稿しました。")
-                response.status(200).end();
-
-            }).catch((err) => console.log(err));
         }
     } else {
         console.log('署名認証エラー');

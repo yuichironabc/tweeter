@@ -4,7 +4,7 @@
  */
 module.exports = {
 
-    sendTweet: function (message) {
+    sendTweet: function (event, message) {
 
         console.log("投稿処理を開始しました。");
 
@@ -28,6 +28,31 @@ module.exports = {
                 console.log(error);
                 throw error;
             }
+
+            // LINEクライアントオブジェクト
+            const line_client = new line.Client({
+                channelAccessToken: process.env.LINE_ACCESSTOKEN
+            });
+
+            // LINEへの返答
+            line_client.replyMessage(event.replyToken, {
+                'type': 'text',
+                'text': '下記のメッセージを投稿しました。\n\n' + message
+            }).then((context) => {
+                // let lambdaResponse = {
+                //     statusCode: 200,
+                //     headers: {
+                //         "X-Line-Status": "OK"
+                //     },
+                //     body: '{"result": "completed"}'
+                // };
+                // context.succeed(lambdaResponse);
+
+                console.log("TweetをLINEに投稿しました。")
+                response.status(200).end();
+
+            }).catch((err) => console.log(err));
+
             console.log(tweet);
             console.log(response);
         });
