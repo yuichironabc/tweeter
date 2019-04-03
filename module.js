@@ -1,61 +1,90 @@
-/**
- * Twitterへの投稿を行う。
- * @param {投稿するメッセージ} message 
- */
 module.exports = {
-
-    sendTweet: function (event, message) {
+    /**
+     * Twitterに投稿する。
+     * @param {投稿するメッセージ} message 
+     */
+    sendTweet: function (event, message, main_response) {
 
         console.log("投稿処理を開始しました。");
 
         // Twitterクライアントオブジェクトの作成
-        let twitter = require('twitter');
-        let twitter_client = new twitter({
-            consumer_key: process.env.TWITTER_CONSUMERKEY,
-            consumer_secret: process.env.TWITTER_CONSUMERSECRET,
-            access_token_key: process.env.TWITTER_ACCESSTOKENKEY,
-            access_token_secret: process.env.TWITTER_ACCESSTOKENSECRET,
-        });
+        const twitter = require('twitter');
+        const twitter_client = new twitter(module.exports.twitter_config);
 
         // TwitterAPIに対してPOSTリクエストを投げる
         twitter_client.post('statuses/update', {
             status: message
-        }, function (error, tweet, response) {
+        }, (error, tweet, response) => {
 
             console.log("Tweet投稿後のポストバック");
-
+            // エラーチェック
             if (error) {
                 console.log(error);
                 throw error;
             }
-
-            // LINEクライアントオブジェクト
-            const line = require('@line/bot-sdk');
-            const line_client = new line.Client({
-                channelAccessToken: process.env.LINE_ACCESSTOKEN
-            });
+            // エラーが発生していないことが確認できたのでログを出力する。
+            console.log("Tweetを投稿しました。");
 
             // LINEへの返答
-            line_client.replyMessage(event.replyToken, {
-                'type': 'text',
-                'text': '下記のメッセージを投稿しました。\n\n' + message
-            }).then((context) => {
-                // let lambdaResponse = {
-                //     statusCode: 200,
-                //     headers: {
-                //         "X-Line-Status": "OK"
-                //     },
-                //     body: '{"result": "completed"}'
-                // };
-                // context.succeed(lambdaResponse);
-
-                console.log("TweetをLINEに投稿しました。")
-                response.status(200).end();
-
-            }).catch((err) => console.log(err));
-
-            // console.log(tweet);
-            // console.log(response);
+            module.exports.replyToLINE(event, "下記のメッセージを投稿しました。\n\n" + message, 200, "TweetをLINEに投稿しました。", main_response);
         });
+    },
+
+    /**
+     * LINEに返答する。
+     * @param {投稿メッセージ} massage 
+     * @param {投稿成功時のログメッセージ} log_success 
+     */
+    replyToLINE: function (event, message, response_status, log_message, main_response) {
+
+        // LINEクライアントオブジェクト
+        const line = require('@line/bot-sdk');
+        const line_client = new line.Client(module.exports.line_client_config);
+
+        // LINEへの返答
+        line_client.replyMessage(event.replyToken, {
+            'type': 'text',
+            'text': message
+        }).then((context) => {
+            console.log(log_message);
+            main_response.status(response_status).end();
+        }).catch((err) => {
+            throw err;
+        });
+    },
+
+    /**
+     * signatureを生成する。
+     */
+    generateSignature: (body) => {
+        const crypto = require('crypto');
+        return crypto.createHmac('sha256', process.env.LINE_SECRET)
+            .update(Buffer.from(JSON.stringify(body)))
+            .digest('base64');
+    },
+
+    /**
+     * Twitterの情報にアクセスするための設定
+     */
+    twitter_config: {
+        consumer_key: process.env.TWITTER_CONSUMERKEY,
+        consumer_secret: process.env.TWITTER_CONSUMERSECRET,
+        access_token_key: process.env.TWITTER_ACCESSTOKENKEY,
+        access_token_secret: process.env.TWITTER_ACCESSTOKENSECRET,
+    },
+
+    /**
+     * LINEの情報にアクセスするための設定
+     */
+    line_config: {
+        channelAccessToken: process.env.LINE_ACCESSTOKEN,
+        channelSecret: process.env.LINE_SECRET
+    },
+
+    /**
+     * LINEクライアントを作成するための設定
+     */
+    line_client_config: {
+        channelAccessToken: process.env.LINE_ACCESSTOKEN
     }
 };

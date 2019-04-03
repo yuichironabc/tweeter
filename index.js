@@ -1,69 +1,56 @@
 'use strict'
+const module = require("./module.js");
 const line = require('@line/bot-sdk');
-const crypto = require('crypto');
-
-// LINEの情報にアクセスするための設定
-const line_config = {
-    channelAccessToken: process.env.LINE_ACCESSTOKEN,
-    channelSecret: process.env.LINE_SECRET
-};
 
 // POSTエンドポイント
 const express = require('express');
 const app = express();
-app.post('/', line.middleware(line_config), function (request, response) {
+app.post('/', line.middleware(module.line_config), (request, main_response) => {
 
-    console.log("bot関数がアクセスされました。");
-    let signature = crypto.createHmac('sha256', process.env.LINE_SECRET).update(Buffer.from(JSON.stringify(request.body))).digest('base64');
-    console.log(signature);
-    let checkHeader = (request.headers || {})['x-line-signature'];
-    console.log(checkHeader);
-    if (signature === checkHeader) {
+    try {
+        console.log("bot関数がアクセスされました。");
 
-        let event = request.body.events[0];
-        if (event.replyToken === '00000000000000000000000000000000') {
+        // 認証用の設定
+        const signature = module.generateSignature(request.body);
+        const checkHeader = (request.headers || {})['x-line-signature'];
 
-            response.succeed({
-                statusCode: 200,
-                headers: {
-                    "X-Line-Status": "OK"
-                },
-                body: '{"result": "connect check"}'
-            });
-            response.status(200).end();
-        } else {
+        console.log(signature);
+        console.log(checkHeader);
+        if (signature === checkHeader) {
 
-            // LINEクライアントオブジェクト
-            const line_client = new line.Client({
-                channelAccessToken: process.env.LINE_ACCESSTOKEN
-            });
+            let event = request.body.events[0];
+            // if (event.replyToken === '00000000000000000000000000000000') {
 
-            let message = event.message.text;
+            //     main_response.succeed({
+            //         statusCode: 200,
+            //         headers: {
+            //             "X-Line-Status": "OK"
+            //         },
+            //         body: '{"result": "connect check"}'
+            //     });
+            //     main_response.status(200).end();
+            // } else {
+
             // エラーチェック
+            let message = event.message.text;
             if (message.length > 140) {
-
-                line_client.replyMessage(event.replyToken, {
-                    'type': 'text',
-                    'text': '140文字を超えています。'
-                }).then((context) => {
-                    response.status(400).end();
-
-                }).catch((err) => console.log(err));
-
-                console.log("140文字を超えています。");
-                return;
+                module.replyToLINE(event, "140文字を超えています。", 400, "140文字を超えています。", main_response);
+                throw new Error("140文字を超えています。");
             }
 
-            // Twitterへの投稿
-            const module = require("./module.js");
-            module.sendTweet(event, message);
-            console.log("Tweetを投稿しました。");
+            // Twitterへの投稿            
+            module.sendTweet(event, message, main_response);
+            // }
+        } else {
+            console.log("署名認証エラー");
+            throw new Error("署名認証エラー");
         }
-    } else {
-        console.log('署名認証エラー');
+
+    } catch (e) {
+        console.log(e);
     }
 });
 
-app.listen(process.env.PORT || 3000, function () {
+app.listen(process.env.PORT || 3000, () => {
     console.log('node server is running!');
 });
