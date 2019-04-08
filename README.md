@@ -2,4 +2,9 @@
 LINEに投稿したメッセージが自動的にTweetされるプログラムです。
 
 # 使用技術
-JavaScript,Node.js,Express.js,LineAPI,TwitterAPI
+## 言語
+JavaScript
+## ライブラリ
+Node.js,Express.js
+## API
+LineAPI,TwitterAPI
