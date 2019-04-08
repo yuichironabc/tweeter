@@ -2,11 +2,11 @@
 LINEに投稿したメッセージが自動的にTweetされるプログラムです。
 
 # 使用技術
- - 言語
+## 言語
 JavaScript
- ## ライブラリ
+## ライブラリ
 Node.js,Express.js
- ## API
+## API
 LineAPI,TwitterAPI
- ## デプロイ環境
+## デプロイ環境
 heroku
